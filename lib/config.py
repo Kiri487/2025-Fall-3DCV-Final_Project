@@ -99,11 +99,74 @@ def get_default_loss_config():
 def get_default_network_config():
     config = edict()
     # ------ backbone -------- #
+    config.BACKBONE_NAME = 'ResNet' # 'ResNet' | 'HRNet' | 'Swin' | 'ConvNeXt'
     config.arch = 'resnet'
     config.back_freeze = False
     config.back_input_channel = 3 # # channels of backbone's input
     config.back_layers_num = 34   # 18 | 34 | 50 | 101 | 152
     config.back_filters_num = 256  # number of filters for each layer
+    # ------ HRNet backbone -------- #
+    config.HRNET = edict()
+    config.HRNET.PRETRAINED = '' # path to pre-trained weights
+    config.HRNET.STAGE1 = edict()
+    config.HRNET.STAGE1.NUM_MODULES = 1
+    config.HRNET.STAGE1.NUM_BRANCHES = 1
+    config.HRNET.STAGE1.BLOCK = 'BOTTLENECK'
+    config.HRNET.STAGE1.NUM_BLOCKS = [4]
+    config.HRNET.STAGE1.NUM_CHANNELS = [64]
+    config.HRNET.STAGE1.FUSE_METHOD = 'SUM'
+    config.HRNET.STAGE2 = edict()
+    config.HRNET.STAGE2.NUM_MODULES = 1
+    config.HRNET.STAGE2.NUM_BRANCHES = 2
+    config.HRNET.STAGE2.BLOCK = 'BASIC'
+    config.HRNET.STAGE2.NUM_BLOCKS = [4, 4]
+    config.HRNET.STAGE2.NUM_CHANNELS = [32, 64]
+    config.HRNET.STAGE2.FUSE_METHOD = 'SUM'
+    config.HRNET.STAGE3 = edict()
+    config.HRNET.STAGE3.NUM_MODULES = 4
+    config.HRNET.STAGE3.NUM_BRANCHES = 3
+    config.HRNET.STAGE3.BLOCK = 'BASIC'
+    config.HRNET.STAGE3.NUM_BLOCKS = [4, 4, 4]
+    config.HRNET.STAGE3.NUM_CHANNELS = [32, 64, 128]
+    config.HRNET.STAGE3.FUSE_METHOD = 'SUM'
+    config.HRNET.STAGE4 = edict()
+    config.HRNET.STAGE4.NUM_MODULES = 3
+    config.HRNET.STAGE4.NUM_BRANCHES = 4
+    config.HRNET.STAGE4.BLOCK = 'BASIC'
+    config.HRNET.STAGE4.NUM_BLOCKS = [4, 4, 4, 4]
+    config.HRNET.STAGE4.NUM_CHANNELS = [32, 64, 128, 256]
+    config.HRNET.STAGE4.FUSE_METHOD = 'SUM'
+
+    # ------ Swin Transformer backbone -------- #
+    config.SWIN = edict()
+    config.SWIN.PRETRAINED = '' # path to pre-trained weights
+    config.SWIN.PATCH_SIZE = 4
+    config.SWIN.IN_CHANS = 3
+    config.SWIN.EMBED_DIM = 96
+    config.SWIN.DEPTHS = [2, 2, 6, 2]
+    config.SWIN.NUM_HEADS = [3, 6, 12, 24]
+    config.SWIN.WINDOW_SIZE = 7
+    config.SWIN.MLP_RATIO = 4.
+    config.SWIN.QKV_BIAS = True
+    config.SWIN.QK_SCALE = None
+    config.SWIN.DROP_RATE = 0.0
+    config.SWIN.ATTN_DROP_RATE = 0.0
+    config.SWIN.DROP_PATH_RATE = 0.1
+    config.SWIN.APE = False # absolute position embedding
+    config.SWIN.PATCH_NORM = True
+    config.SWIN.OUT_INDICES = (0, 1, 2, 3)
+
+    # ------ ConvNeXt backbone -------- #
+    config.CONVNEXT = edict()
+    config.CONVNEXT.PRETRAINED = '' # path to pre-trained weights
+    config.CONVNEXT.IN_CHANS = 3
+    config.CONVNEXT.DEPTHS = [3, 3, 9, 3] # ConvNeXt-T
+    config.CONVNEXT.DIMS = [96, 192, 384, 768] # ConvNeXt-T
+    config.CONVNEXT.DROP_PATH_RATE = 0.1
+    config.CONVNEXT.LAYER_SCALE_INIT_VALUE = 1e-6
+    config.CONVNEXT.HEAD_INIT_SCALE = 1.0
+
+
     # ------ rotation head -------- #
     config.rot_head_freeze = False
     config.rot_layers_num = 3

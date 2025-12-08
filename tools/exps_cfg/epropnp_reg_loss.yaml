@@ -47,6 +47,7 @@ augment:
   shift_ratio: 0.25
 
 network:
+  BACKBONE_NAME: 'ResNet'
   # ------ backbone -------- #
   arch: 'resnet' # 'hg' | 'hg_refiner' | 'resnet' | 'resnet_refiner'
   back_freeze: False

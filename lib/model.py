@@ -26,6 +26,9 @@ model_names = sorted(name for name in models.__dict__
                      and callable(models.__dict__[name]))
 
 from models.resnet_backbone import ResNetBackboneNet
+from models.hrnet_backbone import get_hrnet_backbone
+from models.swin_transformer_backbone import get_swin_backbone
+from models.convnext_backbone import get_convnext_backbone
 from models.resnet_rot_head import RotHeadNet
 from models.resnet_trans_head import TransHeadNet
 from models.CDPN import CDPN
@@ -42,46 +45,66 @@ resnet_spec = {18: (BasicBlock, [2, 2, 2, 2], [64, 64, 128, 256, 512], 'resnet18
 # Re-init optimizer
 def build_model(cfg):
     ## get model and optimizer
-    if 'resnet' in cfg.network.arch:
-        params_lr_list = []
-        # backbone net
+    params_lr_list = []
+    
+    # Selecting Backbone
+    if cfg.network.BACKBONE_NAME == 'HRNet':
+        backbone_net = get_hrnet_backbone(cfg)
+        # The channel count is the sum of all branches at the final stage.
+        last_stage_channels = backbone_net.pre_stage_channels
+        backbone_out_channels = last_stage_channels[0]
+    elif cfg.network.BACKBONE_NAME == 'Swin':
+        backbone_net = get_swin_backbone(cfg)
+        # The output channel is determined by the Swin model's properties
+        backbone_out_channels = backbone_net.out_channels
+    elif cfg.network.BACKBONE_NAME == 'ConvNeXt':
+        backbone_net = get_convnext_backbone(cfg)
+        backbone_out_channels = backbone_net.out_channels
+    elif cfg.network.BACKBONE_NAME == 'ResNet':
+        # Original ResNet Backbone
         block_type, layers, channels, name = resnet_spec[cfg.network.back_layers_num]
         backbone_net = ResNetBackboneNet(block_type, layers, cfg.network.back_input_channel, cfg.network.back_freeze)
-        if cfg.network.back_freeze:
-            for param in backbone_net.parameters():
-                with torch.no_grad():
-                    param.requires_grad = False
-        else:
-            params_lr_list.append({'params': filter(lambda p: p.requires_grad, backbone_net.parameters()),
-                                   'lr': float(cfg.train.lr_backbone)})
-        # rotation head net
-        rot_head_net = RotHeadNet(channels[-1], cfg.network.rot_layers_num, cfg.network.rot_filters_num, cfg.network.rot_conv_kernel_size,
-                                  cfg.network.rot_output_conv_kernel_size, cfg.network.rot_output_channels, cfg.network.rot_head_freeze)
-        if cfg.network.rot_head_freeze:
-            for param in rot_head_net.parameters():
-                with torch.no_grad():
-                    param.requires_grad = False
-        else:
-            params_lr_list.append({'params': filter(lambda p: p.requires_grad, rot_head_net.parameters()),
-                                   'lr': float(cfg.train.lr_rot_head)})
-        # translation head net
-        trans_head_net = TransHeadNet(channels[-1], cfg.network.trans_layers_num, cfg.network.trans_filters_num, cfg.network.trans_conv_kernel_size,
-                                      cfg.network.trans_output_channels, cfg.network.trans_head_freeze)
-        if cfg.network.trans_head_freeze:
-            for param in trans_head_net.parameters():
-                with torch.no_grad():
-                    param.requires_grad = False
-        else:
-            params_lr_list.append({'params': filter(lambda p: p.requires_grad, trans_head_net.parameters()),
-                                   'lr': float(cfg.train.lr_trans_head)})
-        # CDPN (Coordinates-based Disentangled Pose Network)
-        model = CDPN(backbone_net, rot_head_net, trans_head_net)
-        # get optimizer
-        if params_lr_list != []:
-            optimizer = torch.optim.RMSprop(params_lr_list, alpha=cfg.train.alpha, eps=float(cfg.train.epsilon),
-                                            weight_decay=cfg.train.weightDecay, momentum=cfg.train.momentum)
-        else:
-            optimizer = None
+        backbone_out_channels = channels[-1]
+    else:
+        raise ValueError("Unsupported backbone name: {}".format(cfg.network.BACKBONE_NAME))
+
+    # Add backbone parameters to optimizer list
+    if cfg.network.back_freeze:
+        for param in backbone_net.parameters():
+            with torch.no_grad():
+                param.requires_grad = False
+    else:
+        params_lr_list.append({'params': filter(lambda p: p.requires_grad, backbone_net.parameters()),
+                               'lr': float(cfg.train.lr_backbone)})
+
+    # rotation head net
+    rot_head_net = RotHeadNet(backbone_out_channels, cfg.network.rot_layers_num, cfg.network.rot_filters_num, cfg.network.rot_conv_kernel_size,
+                              cfg.network.rot_output_conv_kernel_size, cfg.network.rot_output_channels, cfg.network.rot_head_freeze)
+    if cfg.network.rot_head_freeze:
+        for param in rot_head_net.parameters():
+            with torch.no_grad():
+                param.requires_grad = False
+    else:
+        params_lr_list.append({'params': filter(lambda p: p.requires_grad, rot_head_net.parameters()),
+                               'lr': float(cfg.train.lr_rot_head)})
+    # translation head net
+    trans_head_net = TransHeadNet(backbone_out_channels, cfg.network.trans_layers_num, cfg.network.trans_filters_num, cfg.network.trans_conv_kernel_size,
+                                  cfg.network.trans_output_channels, cfg.network.trans_head_freeze)
+    if cfg.network.trans_head_freeze:
+        for param in trans_head_net.parameters():
+            with torch.no_grad():
+                param.requires_grad = False
+    else:
+        params_lr_list.append({'params': filter(lambda p: p.requires_grad, trans_head_net.parameters()),
+                               'lr': float(cfg.train.lr_trans_head)})
+    # CDPN (Coordinates-based Disentangled Pose Network)
+    model = CDPN(backbone_net, rot_head_net, trans_head_net)
+    # get optimizer
+    if params_lr_list:
+        optimizer = torch.optim.RMSprop(params_lr_list, alpha=cfg.train.alpha, eps=float(cfg.train.epsilon),
+                                        weight_decay=cfg.train.weightDecay, momentum=cfg.train.momentum)
+    else:
+        optimizer = None
 
     ## model initialization
     if cfg.pytorch.load_model != '':
@@ -92,23 +115,32 @@ def build_model(cfg):
         else:
             state_dict = checkpoint.state_dict()
 
-        if 'resnet' in cfg.network.arch:
-            model_dict = model.state_dict()
-            # filter out unnecessary params
-            filtered_state_dict = {k: v for k, v in state_dict.items() if k in model_dict}
-            # update state dict
-            model_dict.update(filtered_state_dict)
-            # load params to net
-            model.load_state_dict(model_dict)
+        model_dict = model.state_dict()
+        # filter out unnecessary params
+        filtered_state_dict = {k: v for k, v in state_dict.items() if k in model_dict}
+        # update state dict
+        model_dict.update(filtered_state_dict)
+        # load params to net
+        model.load_state_dict(model_dict)
     else:
-        if 'resnet' in cfg.network.arch:
-            logger.info("=> loading official model from model zoo for backbone")
+        # Only load official pre-trained weights for ResNet backbone
+        if cfg.network.BACKBONE_NAME == 'ResNet':
+            logger.info("=> loading official model from model zoo for ResNet backbone")
             _, _, _, name = resnet_spec[cfg.network.back_layers_num]
             official_resnet = model_zoo.load_url(model_urls[name])
             # drop original resnet fc layer, add 'None' in case of no fc layer, that will raise error
             official_resnet.pop('fc.weight', None)
             official_resnet.pop('fc.bias', None)
             model.backbone.load_state_dict(official_resnet)
+        # HRNet pre-trained weights are loaded inside get_hrnet_backbone
+        elif cfg.network.BACKBONE_NAME == 'HRNet':
+             logger.info("=> HRNet backbone pre-trained weights loaded internally.")
+        # Swin pre-trained weights are loaded inside get_swin_backbone
+        elif cfg.network.BACKBONE_NAME == 'Swin':
+             logger.info("=> Swin backbone pre-trained weights loaded internally.")
+        # ConvNeXt pre-trained weights are loaded inside get_convnext_backbone
+        elif cfg.network.BACKBONE_NAME == 'ConvNeXt':
+             logger.info("=> ConvNeXt backbone pre-trained weights loaded internally.")
 
     return model, optimizer
 
