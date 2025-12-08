@@ -1,0 +1,16 @@
+dataset/
+dataset_cache/
+
+exp/
+output/
+*.pth
+*.tar
+*.zip
+
+__pycache__/
+*.pyc
+
+.vscode/
+.idea/
+
+.DS_Store
