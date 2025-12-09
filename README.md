@@ -14,25 +14,25 @@ EPro-PnP-6DoF reuses the off-the-shelf 6DoF pose estimation network CDPN. The or
 
 ## Environment
 
-The code has been tested in the environment described as follows:
+The code has been tested in the following environment (Updated for RTX 50 Series / Modern GPUs):
 
-- Linux (tested on Ubuntu 16.04/18.04)
-- Python 3.6
-- [PyTorch](https://pytorch.org/get-started/previous-versions/) 1.5.0
+- **OS**: WSL2 (Ubuntu 24.04)
+- **Python**: 3.10
+- **PyTorch**: 2.10.0.dev20251207+cu128
+- **GPU**: NVIDIA RTX 5070ti
 
-An example script for installing the python dependencies under CUDA 10.2:
+An example script for installing the python dependencies under CUDA 12.9:
 
 ```bash
 # Create conda environment
-conda create -y -n epropnp_6dof python=3.6
+conda create -y -n epropnp_6dof python=3.10
 conda activate epropnp_6dof
-conda install -y pip
 
 # Install pytorch
-conda install pytorch==1.5.0 torchvision==0.6.0 cudatoolkit=10.2 -c pytorch
+pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
 
 # Install other dependencies
-pip install opencv-python==4.5.1.48 pyro-ppl==1.4.0 PyYAML==5.4.1 matplotlib termcolor plyfile easydict scipy progress numba tensorboardx
+pip install opencv-python pyro-ppl PyYAML matplotlib termcolor plyfile easydict scipy progress numba tensorboardx
 ```
 
 ## Data Preparation
