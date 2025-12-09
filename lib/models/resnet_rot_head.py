@@ -48,9 +48,13 @@ class RotHeadNet(nn.Module):
             self.features.append(nn.BatchNorm2d(num_filters))
             self.features.append(nn.ReLU(inplace=True))
 
-        self.out_layer = nn.Conv2d(num_filters, output_dim, kernel_size=output_kernel_size, padding=pad, bias=True)
-
-        self.scale_branch = nn.Linear(256, 2)
+        if num_layers > 0:
+            head_input_dim = num_filters
+        else:
+            head_input_dim = in_channels
+        
+        self.out_layer = nn.Conv2d(head_input_dim, output_dim, kernel_size=output_kernel_size, padding=pad, bias=True)
+        self.scale_branch = nn.Linear(head_input_dim, 2)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
