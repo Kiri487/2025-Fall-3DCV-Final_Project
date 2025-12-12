@@ -39,7 +39,7 @@ We evaluated four different backbone architectures on the **LineMOD** dataset (1
 
 The table below reports the **ADD(-S)** metrics and **n°, n cm** metrics at various thresholds.
 
-| Backbone Model | Config | Dataset | ADD 0.02d | ADD 0.05d | ADD 0.10d | **ADD Mean** | 2°, 2 cm | 5°, 5 cm | 10°, 10 cm | **Spc Mean** | Download |
+| Backbone Model | Config | Dataset | ADD(-S) 0.02d | ADD(-S) 0.05d | ADD(-S) 0.10d | **ADD(-S) Mean** | 2°, 2 cm | 5°, 5 cm | 10°, 10 cm | **Spc Mean** | Download |
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **ResNet** | [basic](tools/exps_cfg/epropnp_basic.yaml) | LineMOD | 32.99 | 73.28 | 92.59 | 61.83 | 65.79 | 96.72 | 99.57 | 85.88 | [Link](https://drive.google.com/file/d/1p9OVl2f0rD9JPP_kYthgIIT_hE5V4FcV/view?usp=sharing) |
 | **Swin Transformer** | [swin](tools/exps_cfg/epropnp_swin_basic.yaml) | LineMOD | 36.13 | 76.39 | **94.55** | 64.47 | 67.42 | 97.46 | 99.75 | 86.63 | [Link](https://drive.google.com/file/d/1qpcYQPokkHx-bkNDstrqDBWJXVTEDb-g/view?usp=drive_link) |
