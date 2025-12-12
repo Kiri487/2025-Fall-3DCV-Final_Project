@@ -31,6 +31,26 @@ We implemented the following backbones for comparison:
     * Features a lightweight prediction head (0 hidden layers) compared to the original design.
     * **Goal:** To verify if high-resolution feature streams improve localization precision.
 
+## Results
+
+We evaluated four different backbone architectures on the **LineMOD** dataset (13 objects, standard split) for 160 epochs.
+
+### Evaluation Metrics
+
+The table below reports the **ADD(-S)** metrics and **n°, n cm** metrics at various thresholds.
+
+| Backbone Model | Config | Dataset | ADD 0.02d | ADD 0.05d | ADD 0.10d | **ADD Mean** | 2°, 2 cm | 5°, 5 cm | 10°, 10 cm | **Spc Mean** | Download |
+| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **ResNet** | [basic](tools/exps_cfg/epropnp_basic.yaml) | LineMOD | 32.99 | 73.28 | 92.59 | 61.83 | 65.79 | 96.72 | 99.57 | 85.88 | [Link](https://drive.google.com/file/d/1p9OVl2f0rD9JPP_kYthgIIT_hE5V4FcV/view?usp=sharing) |
+| **Swin Transformer** | [swin](tools/exps_cfg/epropnp_swin_basic.yaml) | LineMOD | 36.13 | 76.39 | **94.55** | 64.47 | 67.42 | 97.46 | 99.75 | 86.63 | [Link](https://drive.google.com/file/d/1qpcYQPokkHx-bkNDstrqDBWJXVTEDb-g/view?usp=drive_link) |
+| **ConvNeXt** | [convnext](tools/exps_cfg/epropnp_convnext_basic.yaml) | LineMOD | 38.28 | 77.11 | 94.27 | 65.26 | 71.02 | **97.73** | **99.84** | 87.68 | [Link](https://drive.google.com/file/d/1m2ffe2_J-CzL0RzD-kPGdV7LXKOaZq3k/view?usp=sharing) |
+| **HRNet** | [hrnet](tools/exps_cfg/epropnp_hrnet_basic.yaml) | LineMOD | **41.21** | **78.58** | 93.98 | **66.63** | **76.53** | 97.10 | 98.92 | **88.64** | [Link](https://drive.google.com/file/d/1eoxM3AH6cr-PLLlDHBwfFZ9wBbnVPgdO/view?usp=drive_link) |
+
+> **Key Findings:**
+> * **High Precision:** HRNet significantly outperforms other models in strict metrics (**ADD 0.02d** and **2°, 2 cm**), showing superior capability in precise localization.
+> * **Global Context:** Swin Transformer achieves the best performance in the loose metric (**ADD 0.10d**), indicating strong object recognition capabilities.
+> * **Balance:** ConvNeXt offers a balanced performance, achieving the highest accuracy in the practical **5°, 5 cm** threshold.
+
 ## Environment
 
 The code has been tested in the following environment (Updated for RTX 50 Series):
@@ -81,25 +101,6 @@ EPro-PnP-6DoF/
 …
 ```
 
-## Models & Benchmark Results
-
-We evaluated four different backbone architectures on the **LineMOD** dataset (13 objects, standard split) for 160 epochs.
-
-### Evaluation Metrics
-
-The table below reports the **ADD(-S)** metrics and **n°, n cm** metrics at various thresholds.
-
-| Backbone Model | Config | Dataset | ADD 0.02d | ADD 0.05d | ADD 0.10d | **ADD Mean** | 2°, 2 cm | 5°, 5 cm | 10°, 10 cm | **Spc Mean** | Download |
-| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **ResNet** | [basic](tools/exps_cfg/epropnp_basic.yaml) | LineMOD | 32.99 | 73.28 | 92.59 | 61.83 | 65.79 | 96.72 | 99.57 | 85.88 | [Link](https://drive.google.com/file/d/1p9OVl2f0rD9JPP_kYthgIIT_hE5V4FcV/view?usp=sharing) |
-| **Swin Transformer** | [swin](tools/exps_cfg/epropnp_swin_basic.yaml) | LineMOD | 36.13 | 76.39 | **94.55** | 64.47 | 67.42 | 97.46 | 99.75 | 86.63 | [Link](https://drive.google.com/file/d/1qpcYQPokkHx-bkNDstrqDBWJXVTEDb-g/view?usp=drive_link) |
-| **ConvNeXt** | [convnext](tools/exps_cfg/epropnp_convnext_basic.yaml) | LineMOD | 38.28 | 77.11 | 94.27 | 65.26 | 71.02 | **97.73** | **99.84** | 87.68 | [Link](https://drive.google.com/file/d/1m2ffe2_J-CzL0RzD-kPGdV7LXKOaZq3k/view?usp=sharing) |
-| **HRNet** | [hrnet](tools/exps_cfg/epropnp_hrnet_basic.yaml) | LineMOD | **41.21** | **78.58** | 93.98 | **66.63** | **76.53** | 97.10 | 98.92 | **88.64** | [Link](https://drive.google.com/file/d/1eoxM3AH6cr-PLLlDHBwfFZ9wBbnVPgdO/view?usp=drive_link) |
-
-> **Key Findings:**
-> * **High Precision:** HRNet significantly outperforms other models in strict metrics (**ADD 0.02d** and **2°, 2 cm**), showing superior capability in precise localization.
-> * **Global Context:** Swin Transformer achieves the best performance in the loose metric (**ADD 0.10d**), indicating strong object recognition capabilities.
-> * **Balance:** ConvNeXt offers a balanced performance, achieving the highest accuracy in the practical **5°, 5 cm** threshold.
 ## Train
 
 To start training, enter the directory `EPro-PnP-6DoF`, and run:
