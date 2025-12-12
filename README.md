@@ -14,7 +14,7 @@ EPro-PnP-6DoF reuses the off-the-shelf 6DoF pose estimation network CDPN. The or
 <img src="./architecture.png" width="450" alt=""/>
 
 ### Our Modifications: Alternative Backbones
-In this project, we replaced the standard ResNet backbone with three state-of-the-art architectures to investigate the impact of **spatial resolution** and **global context** on pose accuracy, specifically focusing on strict metrics (e.g., 2cm/2deg).
+In this project, we replaced the standard ResNet backbone with three architectures.
 
 We implemented the following backbones for comparison:
 
@@ -33,7 +33,7 @@ We implemented the following backbones for comparison:
 
 ## Environment
 
-The code has been tested in the following environment (Updated for RTX 50 Series / Modern GPUs):
+The code has been tested in the following environment (Updated for RTX 50 Series):
 
 - **OS**: WSL2 (Ubuntu 24.04)
 - **Python**: 3.10
@@ -83,11 +83,11 @@ EPro-PnP-6DoF/
 
 ## Models & Benchmark Results
 
-We evaluated four different backbone architectures on the **LineMOD** dataset (13 objects, standard split) for 160 epochs. The results demonstrate the performance trade-offs between different architectures, particularly in high-precision scenarios.
+We evaluated four different backbone architectures on the **LineMOD** dataset (13 objects, standard split) for 160 epochs.
 
-### Detailed Evaluation Metrics
+### Evaluation Metrics
 
-The table below reports the **ADD(-S)** metrics and **n° n cm** metrics (Spatial Accuracy) at various thresholds.
+The table below reports the **ADD(-S)** metrics and **n°, n cm** metrics at various thresholds.
 
 | Backbone Model | Config | Dataset | ADD 0.02d | ADD 0.05d | ADD 0.10d | **ADD Mean** | 2°, 2 cm | 5°, 5 cm | 10°, 10 cm | **Spc Mean** | Download |
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -114,7 +114,7 @@ python tools/main.py --cfg tools/exps_cfg/epropnp_basic.yaml
 python tools/main.py --cfg tools/exps_cfg/epropnp_hrnet_basic.yaml
 ```
 
-### Swin
+### Swin Transformer
 ```bash
 python tools/main.py --cfg tools/exps_cfg/epropnp_swin_basic.yaml
 ```
@@ -133,11 +133,11 @@ To evaluate the trained models on the LineMOD test split:
 
 1.  Download the pre-trained weights (`model.pth`) from the table above.
 2.  Open the corresponding config file (e.g., `tools/exps_cfg/epropnp_hrnet_basic.yaml`).
-3.  Set `load_model` to the path of your downloaded file (e.g., `'path/to/epropnp_hrnet_basic.pth'`).
+3.  Set `load_model` to the path of your downloaded file (e.g., `path/to/epropnp_hrnet_basic.pth`).
 4.  Change `test` from `False` to `True`.
 
 ```bash
-python tools/main.py --cfg tools/exps_cfg/{corresponding config file name}.yaml
+python tools/main.py --cfg tools/exps_cfg/{config_file_name}.yaml
 ```
 
 Logs and visualizations will be saved to `EPro-PnP-6DoF/exp`.
