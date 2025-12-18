@@ -46,11 +46,6 @@ The table below reports the **ADD(-S)** metrics and **n°, n cm** metrics at var
 | **ConvNeXt** | [convnext](tools/exps_cfg/epropnp_convnext_basic.yaml) | LineMOD | 38.28 | 77.11 | 94.27 | 65.26 | 71.02 | **97.73** | **99.84** | 87.68 | [Link](https://drive.google.com/file/d/1m2ffe2_J-CzL0RzD-kPGdV7LXKOaZq3k/view?usp=sharing) |
 | **HRNet** | [hrnet](tools/exps_cfg/epropnp_hrnet_basic.yaml) | LineMOD | **41.21** | **78.58** | 93.98 | **66.63** | **76.53** | 97.10 | 98.92 | **88.64** | [Link](https://drive.google.com/file/d/1eoxM3AH6cr-PLLlDHBwfFZ9wBbnVPgdO/view?usp=drive_link) |
 
-> **Key Findings:**
-> * **High Precision:** HRNet significantly outperforms other models in strict metrics (**ADD 0.02d** and **2°, 2 cm**), showing superior capability in precise localization.
-> * **Global Context:** Swin Transformer achieves the best performance in the loose metric (**ADD 0.10d**), indicating strong object recognition capabilities.
-> * **Balance:** ConvNeXt offers a balanced performance, achieving the highest accuracy in the practical **5°, 5 cm** threshold.
-
 ## Environment
 
 The code has been tested in the following environment (Updated for RTX 50 Series):
